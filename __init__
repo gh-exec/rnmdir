@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+shopt -s dotglob
+rnmdir ()
+{
+  local from=$1
+  local to=$2
+
+  [[ -e "$to" ]] && exit 1
+
+  if [[ -d "$from" ]]; then
+    if [[ $(ls -A "$from") ]]; then
+      for item in "$from"/*; do
+        rnmdir "$item" "$to/$(basename "$item")"
+      done
+      [[ -d "$from" ]] && rm -rf "$from"
+    else
+      mkdir -p "$to"
+      rmdir "$from"
+    fi
+  elif [[ -f "$from" ]]; then
+    mkdir -p "$(dirname "$to")"
+    mv -u "$from" "$to"
+  fi
+}
+
+rnmdir $@
